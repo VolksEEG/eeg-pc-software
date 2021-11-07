@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EEGMachine", "EEGMachine\EEGMachine.csproj", "{9CDFD2F7-92D2-4B27-95DD-996ED93DC997}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EEGMachine", "EEGMachine\EEGMachine.csproj", "{9CDFD2F7-92D2-4B27-95DD-996ED93DC997}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EEGDataHandling", "EEGDataHandling\EEGDataHandling.csproj", "{2C0F1CFB-D06F-4637-8157-02C968207A8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{9CDFD2F7-92D2-4B27-95DD-996ED93DC997}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CDFD2F7-92D2-4B27-95DD-996ED93DC997}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CDFD2F7-92D2-4B27-95DD-996ED93DC997}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C0F1CFB-D06F-4637-8157-02C968207A8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C0F1CFB-D06F-4637-8157-02C968207A8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C0F1CFB-D06F-4637-8157-02C968207A8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C0F1CFB-D06F-4637-8157-02C968207A8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
