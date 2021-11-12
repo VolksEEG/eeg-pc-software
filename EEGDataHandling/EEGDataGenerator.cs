@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Timers;
 
@@ -8,6 +9,9 @@ namespace EEGDataHandling
     /// A class for holding mocked EEG data for testing.
     public class EEGDataGenerator : IEEGData
     {
+        // Set capacity to 60 seconds at 500 samples/second
+        private const int QUEUE_CAPACITY = 500 * 60;
+
         /// <summary>
         /// Generator for time-series EEG data
         /// For simplicity (for now), timestamps are in milliseconds from
@@ -15,12 +19,16 @@ namespace EEGDataHandling
         /// </summary>
         public EEGDataGenerator()
         {
-            dataPoints = new List<(long, double)>();
-            random = new Random();
-            timer = new Timer();
+            _dataPoints = new ConcurrentQueue<(long, double)>();
+            _random = new Random();
+            _timer = new Timer();
 
-            timer.Interval = 25;
+            // Note: 500 samples/second means one sample every 2 ms.
+            _timer.Interval = 2;
+            _timer.Elapsed += (sender, e) => GenerateDataPoint(e.SignalTime);
         }
+
+        public event EventHandler DataUpdated;
 
         /// <summary>
         /// Determines the interval at which this MockEEGData class will 
@@ -29,15 +37,17 @@ namespace EEGDataHandling
         /// </summary>
         public double Interval
         {
-            get => timer.Interval;
-            set => timer.Interval = value;
+            get => _timer.Interval;
+            set => _timer.Interval = value;
         }
 
-        private List<(long, double)> dataPoints;
-        public IEnumerable<(long, double)> DataPoints => dataPoints;
+        private readonly ConcurrentQueue<(long, double)> _dataPoints;
+        public IEnumerable<(long, double)> DataPoints => _dataPoints;
 
-        private Timer timer;
-        private Random random;
+        public long LastUpdateTime { get; private set; }
+
+        private readonly Timer _timer;
+        private readonly Random _random;
 
         /// <summary>
         /// Not part of the interface.
@@ -46,12 +56,7 @@ namespace EEGDataHandling
         /// </summary>
         public void StartGenerating()
         {
-            timer.Interval = Interval;
-
-            timer.AutoReset = true;
-            timer.Elapsed += (sender, e) => GenerateDataPoint(e.SignalTime);
-
-            timer.Start();
+            _timer.Start();
         }
 
         /// <summary>
@@ -59,13 +64,13 @@ namespace EEGDataHandling
         /// </summary>
         public void StopGenerating()
         {
-            timer.Stop();
+            _timer.Stop();
         }
 
         public void GenerateDataPoint(DateTime time)
         {
             DateTimeOffset offset = time;
-            double voltage = random.NextDouble();
+            double voltage = _random.NextDouble();
             long timeMs = offset.ToUnixTimeMilliseconds();
 
             AddDataPoint(timeMs, voltage);
@@ -73,7 +78,22 @@ namespace EEGDataHandling
 
         public void AddDataPoint(long timeMs, double voltage)
         {
-            dataPoints.Add((timeMs, voltage));
+            _dataPoints.Enqueue((timeMs, voltage));
+
+            if (_dataPoints.Count > QUEUE_CAPACITY)
+            {
+                // Toss oldest, so it doesn't get too big.
+                _dataPoints.TryDequeue(out (long, double) _);
+            }
+
+            LastUpdateTime = timeMs;
+
+            RaiseDataUpdated();
+        }
+
+        private void RaiseDataUpdated()
+        {
+            DataUpdated?.Invoke(this, EventArgs.Empty);
         }
     }
 }

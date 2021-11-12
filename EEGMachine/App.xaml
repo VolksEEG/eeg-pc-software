@@ -3,12 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:EEGMachine"
              StartupUri="MainWindow.xaml"
-             Startup="Application_Startup"
-             DispatcherUnhandledException="Application_DispatcherUnhandledException">
+             Startup="OnStartup"
+             DispatcherUnhandledException="OnDispatcherUnhandledException">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles\TextStyles.xaml"/>
+                <ResourceDictionary Source="Styles\ButtonStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

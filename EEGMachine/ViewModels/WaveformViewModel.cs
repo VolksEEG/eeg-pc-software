@@ -1,18 +1,32 @@
 ﻿using EEGDataHandling;
+using EEGMachine.Interfaces;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EEGMachine.ViewModels
 {
-    public class WaveformViewModel
+    public class WaveformViewModel : ObservableObject
     {
-        public WaveformViewModel(IEEGData data)
+        public WaveformViewModel(IEEGData data, ITimeRange timeRange)
         {
-            Data = data;
+            EEGData = data;
+            TimeRange = timeRange;
+            data.DataUpdated += OnDataUpdated;
         }
 
-        // Obviously this doesn't work for live updates
-        public IEEGData Data { get; }
+        public ITimeRange TimeRange { get; }
+
+        // TODO: determine how min/max should be handled.
+        // Do we auto-scale based on EEGData's min/max, or have fixed values,
+        // or allow the user to set these separately?
+        public int Min { get; private set; } = 0;
+        public int Max { get; private set; } = 1;
+
+        private void OnDataUpdated(object sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(EEGData));
+        }
+
+        public IEEGData EEGData { get; }
     }
 }

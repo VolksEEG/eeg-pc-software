@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace EEGDataHandling
 {
     public interface IEEGData
     {
-        IEnumerable<(long, double)> DataPoints { get; }
+        event EventHandler DataUpdated;
+
+        long LastUpdateTime { get; }
+
+        IEnumerable<(long timestamp, double value)> DataPoints { get; }
     }
 }

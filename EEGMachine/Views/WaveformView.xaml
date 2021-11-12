@@ -7,8 +7,5 @@
              xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <StackPanel>
-        <!-- Todo: figure out how to bind height -->
-        <skia:SKElement x:Name="WaveformCanvas" PaintSurface="PaintSurface" Height="100" Width="800"/>
-    </StackPanel>
+    <skia:SKElement x:Name="WaveformCanvas" PaintSurface="PaintSurface" VerticalAlignment="Stretch"/>
 </UserControl>
