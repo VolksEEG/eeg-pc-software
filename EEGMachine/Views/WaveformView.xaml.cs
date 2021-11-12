@@ -71,31 +71,48 @@ namespace EEGMachine.Views
             // Create an SKPath object based on the viewModel's data points.
             // TODO - make the ViewModel responsible for creating Path object,
             // and we just rescale it?
-            SKPath path = new SKPath();
+            SKPath newData = new SKPath();
+            SKPath oldData = new SKPath();
 
-            long startTime = 0;
-            double firstValue = 0;
-            bool started = false;
+            bool startedNewData = false;
+            bool startedOldData = false;
 
+            // Create two paths:
+            // Second path is the old data that's currently being overwritten,
+            // First path is the expected one (current data).
             foreach ((long time, double value) in viewModel.EEGData.DataPoints)
             {
-                // Find the first point within our time range.
-                if (time < viewModel.TimeRange.StartTime)
+                // Find the first point that we're going to draw.
+                if (time < viewModel.EEGData.LastUpdateTime - viewModel.TimeRange.Duration + 200)
                 {
-                    startTime = time;
-                    firstValue = value;
                     continue;
                 }
-
-                if (!started)
+                else if (time >= viewModel.EEGData.LastUpdateTime - viewModel.TimeRange.Duration + 200 &&
+                         time < viewModel.TimeRange.StartTime)
                 {
-                    path.MoveTo(startTime - viewModel.TimeRange.StartTime, (float)firstValue);
-                    started = true;
+                    if (!startedOldData)
+                    {
+                        startedOldData = true;
+                        oldData.MoveTo(time - (viewModel.TimeRange.StartTime - viewModel.TimeRange.Duration), (float)value);
+                    }
+                    else
+                    {
+                        oldData.LineTo(time - (viewModel.TimeRange.StartTime - viewModel.TimeRange.Duration), (float)value);
+                    }
                 }
-
-                path.LineTo(new SKPoint(time - viewModel.TimeRange.StartTime, (float)value));
-
-                if (time > viewModel.TimeRange.EndTime)
+                else if (time >= viewModel.TimeRange.StartTime && time <= viewModel.TimeRange.EndTime)
+                {
+                    if (!startedNewData)
+                    {
+                        startedNewData = true;
+                        newData.MoveTo(time - viewModel.TimeRange.StartTime, (float)value);
+                    }
+                    else
+                    {
+                        newData.LineTo(time - viewModel.TimeRange.StartTime, (float)value);
+                    }
+                }
+                else
                 {
                     break;
                 }
@@ -104,16 +121,23 @@ namespace EEGMachine.Views
             // Do time translation first (relative to ViewModel's start/end times), then
             // scale to canvas width.
 
-            // Scaling: Based on Duration and canvas width; and on Min/Max and canvas height (inverted).
-            SKMatrix timeScaling = SKMatrix.CreateScale(
-                e.Info.Width / (float)viewModel.TimeRange.Duration,
-                -e.Info.Height / (float)(viewModel.Max - viewModel.Min));
+            // Horizontal Scaling: Based on Duration and canvas width.
+            SKMatrix timeScaling = SKMatrix.CreateScale(e.Info.Width / (float)viewModel.TimeRange.Duration, 1);
 
-            path.Transform(timeScaling);
+            oldData.Transform(timeScaling);
+            newData.Transform(timeScaling);
+
+            // Vertical scaling: based on Min / Max and canvas height(inverted).
+            SKMatrix verticalScaling = SKMatrix.CreateScale(1, -e.Info.Height / (float)(viewModel.Max - viewModel.Min));
+
+            oldData.Transform(verticalScaling);
+            newData.Transform(verticalScaling);
 
             // Vertical translation by height.
             SKMatrix translateDown = SKMatrix.CreateTranslation(0, e.Info.Height);
-            path.Transform(translateDown);
+
+            oldData.Transform(translateDown);
+            newData.Transform(translateDown);
 
             SKPaint paint = new SKPaint
             {
@@ -122,7 +146,17 @@ namespace EEGMachine.Views
                 Style = SKPaintStyle.Stroke
             };
 
-            canvas.DrawPath(path, paint);
+            canvas.DrawPath(oldData, paint);
+            canvas.DrawPath(newData, paint);
+
+            // Draw leading edge line
+            SKPath verticalLine = new SKPath();
+
+            verticalLine.MoveTo(viewModel.EEGData.LastUpdateTime - viewModel.TimeRange.StartTime, 0);
+            verticalLine.LineTo(viewModel.EEGData.LastUpdateTime - viewModel.TimeRange.StartTime, e.Info.Height);
+            verticalLine.Transform(timeScaling);
+
+            canvas.DrawPath(verticalLine, paint);
         }
     }
 }
