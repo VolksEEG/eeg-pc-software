@@ -11,14 +11,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace EEGMachine
+namespace EEGMachine.Views
 {
     /// <summary>
-    /// Interaction logic for SingleWaveform.xaml
+    /// Interaction logic for WaveformsView.xaml
     /// </summary>
-    public partial class SingleWaveform : UserControl
+    public partial class WaveformsView : UserControl
     {
-        public SingleWaveform()
+        public WaveformsView()
         {
             InitializeComponent();
         }

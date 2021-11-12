@@ -6,7 +6,7 @@ namespace EEGDataHandling
 {
     /// <summary>
     /// A class for holding mocked EEG data for testing.
-    public class EEGDataGenerator
+    public class EEGDataGenerator : IEEGData
     {
         /// <summary>
         /// Generator for time-series EEG data

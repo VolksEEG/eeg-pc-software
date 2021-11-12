@@ -6,5 +6,6 @@ namespace EEGDataHandling
 {
     public interface IEEGData
     {
+        IEnumerable<(long, double)> DataPoints { get; }
     }
 }
