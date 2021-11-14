@@ -5,7 +5,6 @@ using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows.Input;
 
 namespace EEGMachine.ViewModels
@@ -38,7 +37,7 @@ namespace EEGMachine.ViewModels
 
         private void WaveformPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(WaveformViewModel.EEGData))
+            if (e.PropertyName == nameof(WaveformViewModel.LastUpdateTime))
             {
                 // Check if we need to roll our time interval.
                 // Retrieve the last (most recent) sample from each waveform:
@@ -46,7 +45,7 @@ namespace EEGMachine.ViewModels
 
                 foreach (WaveformViewModel vm in Waveforms)
                 {
-                    long newestTimestamp = vm.EEGData.LastUpdateTime;
+                    long newestTimestamp = vm.LastUpdateTime;
 
                     if (newestTimestamp > currentTimestamp)
                     {
