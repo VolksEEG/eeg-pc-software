@@ -17,6 +17,9 @@ namespace EEGMachine.ViewModels
         // 'old' data we're still showing.
         private const int OLD_TO_NEW_INTERVAL = 200;
 
+        public static readonly SKColor BACKGROUND = SKColors.Black;
+        public static readonly SKColor STROKE = new SKColor(0, 175, 0);
+
         public WaveformViewModel(IEEGData data, ITimeRange timeRange)
         {
             EEGData = data;
