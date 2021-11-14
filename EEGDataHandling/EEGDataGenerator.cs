@@ -70,8 +70,11 @@ namespace EEGDataHandling
         public void GenerateDataPoint(DateTime time)
         {
             DateTimeOffset offset = time;
-            double voltage = _random.NextDouble();
+            
             long timeMs = offset.ToUnixTimeMilliseconds();
+            //double voltage = _random.NextDouble();
+            double voltage = (Math.Sin(timeMs / 500.0 * Math.PI) + 1) / 2.0;
+            //double voltage = (timeMs / 1000.0) % 1.0;
 
             AddDataPoint(timeMs, voltage);
         }
