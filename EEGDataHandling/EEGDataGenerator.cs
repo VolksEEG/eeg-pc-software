@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace EEGDataHandling
@@ -9,8 +11,8 @@ namespace EEGDataHandling
     /// A class for holding mocked EEG data for testing.
     public class EEGDataGenerator : IEEGData
     {
-        // Set capacity to 60 seconds at 500 samples/second
-        private const int QUEUE_CAPACITY = 500 * 60;
+        // Set capacity to 30 seconds at 500 samples/second
+        private const int QUEUE_CAPACITY = 500 * 30;
 
         /// <summary>
         /// Generator for time-series EEG data
@@ -20,34 +22,36 @@ namespace EEGDataHandling
         public EEGDataGenerator()
         {
             _dataPoints = new ConcurrentQueue<(long, double)>();
-            _random = new Random();
-            _timer = new Timer();
-
-            // Note: 500 samples/second means one sample every 2 ms.
-            _timer.Interval = 2;
-            _timer.Elapsed += (sender, e) => GenerateDataPoint(e.SignalTime);
         }
 
         public event EventHandler DataUpdated;
+
+        private object _dataPointsLock = new object();
 
         /// <summary>
         /// Determines the interval at which this MockEEGData class will 
         /// generate data.
         /// Changing this has no effect if the timer is running.
         /// </summary>
-        public double Interval
-        {
-            get => _timer.Interval;
-            set => _timer.Interval = value;
-        }
+        public int Interval { get; set; } = 2;
 
         private readonly ConcurrentQueue<(long, double)> _dataPoints;
-        public IEnumerable<(long, double)> DataPoints => _dataPoints;
+
+        // Returns a copy whenever it's accessed, to avoid concurrency issues.
+        public IEnumerable<(long, double)> DataPoints
+        {
+            get
+            {
+                lock (_dataPointsLock)
+                {
+                    return _dataPoints.ToArray();
+                }
+            }
+        }
 
         public long LastUpdateTime { get; private set; }
 
-        private readonly Timer _timer;
-        private readonly Random _random;
+        private CancellationTokenSource _cts;
 
         /// <summary>
         /// Not part of the interface.
@@ -56,7 +60,20 @@ namespace EEGDataHandling
         /// </summary>
         public void StartGenerating()
         {
-            _timer.Start();
+            // Initiate a task.
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            Task.Run(() => GenerateValues(_cts.Token), _cts.Token);
+        }
+
+        private void GenerateValues(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                GenerateDataPoint(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+
+                Thread.Sleep(2);
+            }
         }
 
         /// <summary>
@@ -64,29 +81,27 @@ namespace EEGDataHandling
         /// </summary>
         public void StopGenerating()
         {
-            _timer.Stop();
+            _cts?.Cancel();
         }
 
-        public void GenerateDataPoint(DateTime time)
+        public void GenerateDataPoint(long timeMs)
         {
-            DateTimeOffset offset = time;
-            
-            long timeMs = offset.ToUnixTimeMilliseconds();
-            //double voltage = _random.NextDouble();
-            double voltage = (Math.Sin(timeMs / 500.0 * Math.PI) + 1) / 2.0;
-            //double voltage = (timeMs / 1000.0) % 1.0;
+            double voltage = (Math.Sin(timeMs / 1000.0 * Math.PI) + 1) / 2.0;
 
             AddDataPoint(timeMs, voltage);
         }
 
         public void AddDataPoint(long timeMs, double voltage)
         {
-            _dataPoints.Enqueue((timeMs, voltage));
-
-            if (_dataPoints.Count > QUEUE_CAPACITY)
+            lock (_dataPointsLock)
             {
-                // Toss oldest, so it doesn't get too big.
-                _dataPoints.TryDequeue(out (long, double) _);
+                _dataPoints.Enqueue((timeMs, voltage));
+
+                if (_dataPoints.Count > QUEUE_CAPACITY)
+                {
+                    // Toss oldest, so the queue doesn't get too big.
+                    _dataPoints.TryDequeue(out _);
+                }
             }
 
             LastUpdateTime = timeMs;
