@@ -28,13 +28,6 @@ namespace EEGDataHandling
 
         private object _dataPointsLock = new object();
 
-        /// <summary>
-        /// Determines the interval at which this MockEEGData class will 
-        /// generate data.
-        /// Changing this has no effect if the timer is running.
-        /// </summary>
-        public int Interval { get; set; } = 2;
-
         private readonly ConcurrentQueue<(long, double)> _dataPoints;
 
         // Returns a copy whenever it's accessed, to avoid concurrency issues.
@@ -51,7 +44,31 @@ namespace EEGDataHandling
 
         public long LastUpdateTime { get; private set; }
 
+        /// <summary>
+        /// Also determines the interval at which this MockEEGData class will 
+        /// generate data.
+        /// Changing this has no effect if the timer is running.
+        /// </summary>
+        public int SamplesPerSecond { get; private set; } = 500;
+
+        public double DigitalMinimum { get; private set; } = -1;
+
+        public double DigitalMaximum { get; private set; } = 1;
+
+        public double PhysicalMinimum { get; private set; } = -20;
+
+        public double PhysicalMaximum { get; private set; } = 20;
+
+
         private CancellationTokenSource _cts;
+
+        public EEGSignalMetadata SignalMetadata { get; } = new EEGSignalMetadata()
+        {
+            Label = "EEG",
+            Units = "mV",
+            TransducerType = "UNKNOWN",
+            Prefiltering = "UNKNOWN",
+        };
 
         /// <summary>
         /// Not part of the interface.
@@ -72,7 +89,9 @@ namespace EEGDataHandling
             {
                 GenerateDataPoint(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
-                Thread.Sleep(2);
+                // Sleep for an appropriate amount of time to generate the desired
+                // number of samples per second.
+                Thread.Sleep(1000 / SamplesPerSecond);
             }
         }
 
@@ -86,7 +105,7 @@ namespace EEGDataHandling
 
         public void GenerateDataPoint(long timeMs)
         {
-            double voltage = (Math.Sin(timeMs / 1000.0 * Math.PI) + 1) / 2.0;
+            double voltage = Math.Sin(timeMs / 1000.0 * Math.PI);
 
             AddDataPoint(timeMs, voltage);
         }

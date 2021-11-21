@@ -26,6 +26,10 @@ namespace EEGMachine.ViewModels
             TimeRange = timeRange;
             data.DataUpdated += OnDataUpdated;
 
+            // Assign minimum and maximum values (range) for graphing.
+            Min = data.DigitalMinimum;
+            Max = data.DigitalMaximum;
+
             // Create a timer to communicate with the view about when
             // to re-draw paths.
             _timer = new Timer();
@@ -47,8 +51,8 @@ namespace EEGMachine.ViewModels
         // TODO: determine how min/max should be handled.
         // Do we auto-scale based on EEGData's min/max, or have fixed values,
         // or allow the user to set these separately?
-        public int Min { get; private set; } = 0;
-        public int Max { get; private set; } = 1;
+        public double Min { get; private set; } = 0;
+        public double Max { get; private set; } = 1;
 
         private void OnDataUpdated(object sender, EventArgs e)
         {
@@ -130,13 +134,19 @@ namespace EEGMachine.ViewModels
             oldData.Transform(timeScaling);
             newData.Transform(timeScaling);
 
+            // Vertical translation (map min to 0).
+            SKMatrix normalize = SKMatrix.CreateTranslation(0, -1 * (float)Min);
+
+            oldData.Transform(normalize);
+            newData.Transform(normalize);
+
             // Vertical scaling: based on Min / Max and canvas height(inverted).
-            SKMatrix verticalScaling = SKMatrix.CreateScale(1, -info.Height / (float)(Max - Min));
+            SKMatrix verticalScaling = SKMatrix.CreateScale(1, -1 * info.Height / (float)(Max - Min));
 
             oldData.Transform(verticalScaling);
             newData.Transform(verticalScaling);
 
-            // Vertical translation by height.
+            // Vertical translation
             SKMatrix translateDown = SKMatrix.CreateTranslation(0, info.Height);
 
             oldData.Transform(translateDown);

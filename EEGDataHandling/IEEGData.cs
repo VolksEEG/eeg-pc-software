@@ -9,6 +9,14 @@ namespace EEGDataHandling
 
         long LastUpdateTime { get; }
 
+        double DigitalMinimum { get; }
+        double DigitalMaximum { get; }
+
+        double PhysicalMinimum { get; }
+        double PhysicalMaximum { get; }
+
+        EEGSignalMetadata SignalMetadata { get; }
+
         IEnumerable<(long timestamp, double value)> DataPoints { get; }
     }
 }

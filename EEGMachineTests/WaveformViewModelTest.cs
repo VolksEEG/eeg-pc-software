@@ -11,8 +11,6 @@ namespace EEGMachineTests
 {
     public class WaveformViewModelTest
     {
-
-        private WaveformViewModel _viewModel;
         private Mock<IEEGData> _mockEEGData;
         private Mock<ITimeRange> _mockTimeRange;
 
@@ -21,7 +19,6 @@ namespace EEGMachineTests
         {
             _mockEEGData = new Mock<IEEGData>();
             _mockTimeRange = new Mock<ITimeRange>();
-            _viewModel = new WaveformViewModel(_mockEEGData.Object, _mockTimeRange.Object);
         }
 
         [Test]
@@ -31,6 +28,8 @@ namespace EEGMachineTests
             List<(long, double)> line = new List<(long, double)>() { (0, 0.5), (1000, 0.5), (2000, 0.5) };
             _mockEEGData.Setup(x => x.DataPoints).Returns(line);
             _mockEEGData.Setup(x => x.LastUpdateTime).Returns(2000);
+            _mockEEGData.Setup(x => x.DigitalMinimum).Returns(0);
+            _mockEEGData.Setup(x => x.DigitalMaximum).Returns(1);
 
             // Set up time range to cover the 2-second time span we've given.
             _mockTimeRange.Setup(x => x.StartTime).Returns(0);
@@ -40,7 +39,8 @@ namespace EEGMachineTests
             SKBitmap bitmap = new SKBitmap(4, 3);
             SKCanvas canvas = new SKCanvas(bitmap);
 
-            _viewModel.DrawWaveform(canvas, bitmap.Info);
+            WaveformViewModel viewModel = new WaveformViewModel(_mockEEGData.Object, _mockTimeRange.Object);
+            viewModel.DrawWaveform(canvas, bitmap.Info);
 
             // Assert we drew what was expected:
             // A backround of the appropriate color
@@ -81,10 +81,12 @@ namespace EEGMachineTests
 
             bool propertyChangedFired = false;
 
-            _viewModel.PropertyChanged += (obj, args) =>
+            WaveformViewModel viewModel = new WaveformViewModel(_mockEEGData.Object, _mockTimeRange.Object);
+
+            viewModel.PropertyChanged += (obj, args) =>
             {
                 propertyChangedFired = true;
-                Assert.AreEqual(nameof(_viewModel.LastUpdateTime), args.PropertyName);
+                Assert.AreEqual(nameof(viewModel.LastUpdateTime), args.PropertyName);
             };
 
             // Raise mock EEG data's event
