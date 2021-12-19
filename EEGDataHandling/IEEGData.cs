@@ -17,6 +17,9 @@ namespace EEGDataHandling
 
         EEGSignalMetadata SignalMetadata { get; }
 
+        /// <summary>
+        /// EEG data points contained within this channel.
+        /// </summary>
         IEnumerable<(long timestamp, double value)> DataPoints { get; }
     }
 }
