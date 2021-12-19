@@ -1,6 +1,7 @@
 ﻿using EEGDataHandling;
 using EEGMachine.Interfaces;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Serilog;
 using SkiaSharp;
 using System;
 using System.Timers;
@@ -76,9 +77,12 @@ namespace EEGMachine.ViewModels
             canvas.Clear(SKColors.Black);
 
             // Create SKPath objects based on the waveforms's data points.
+            // New data: stuff on the left
             SKPath newData = new SKPath();
+            // Old data: stuff on the right
             SKPath oldData = new SKPath();
 
+            // Keep track of whether we've started to build the paths.
             bool startedNewData = false;
             bool startedOldData = false;
 
@@ -121,6 +125,7 @@ namespace EEGMachine.ViewModels
                 }
                 else
                 {
+                    Log.Warning("Data point in the future?");
                     break;
                 }
             }

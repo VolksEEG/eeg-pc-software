@@ -1,8 +1,6 @@
-﻿using SharpLib.EuropeanDataFormat;
+﻿using EDFLib;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace EEGDataHandling
 {
@@ -12,60 +10,39 @@ namespace EEGDataHandling
         {
             Header header = new Header();
 
-            header.Version.Value = "0";
-            header.PatientID.Value = metadata.PatientID;
-            header.RecordID.Value = metadata.RecordingID;
-
-            // EDF+ specification: use 1985 as a cutoff date.
-            // https://www.edfplus.info/specs/edfplus.html#edfplusandedf
-            if (metadata.StartTime.Year <= 2084)
-            {
-                header.RecordingStartDate.Value = metadata.StartTime.ToString("dd.MM.yy");
-            }
-            else
-            {
-                // EDF+: After 2084, replace year with 'yy'
-                header.RecordingStartDate.Value = metadata.StartTime.ToString("dd.MM") + "yy";
-            }
-
-            header.RecordingStartTime.Value = metadata.StartTime.ToString("hh.mm.ss");
-
-            header.Reserved.Value = "RESERVED";
+            header.PatientID = metadata.PatientID;
+            header.RecordingID = metadata.RecordingID;
+            header.RecordingStartTime = metadata.StartTime;
+            header.RecordDurationInSeconds = (short)metadata.RecordDurationInSeconds;
 
             return header;
         }
 
-        public static Signal ToEDFSignal(this IEEGData signalData, int recordDurationInSeconds)
+        public static SignalHeader ToEDFSignalHeader(this IEEGData signalData, int recordCount)
         {
-            Signal signal = signalData.SignalMetadata.ToEDFSignal();
+            SignalHeader signal = signalData.SignalMetadata.ToEDFSignalHeader();
 
-            signal.PhysicalMinimum.Value = signalData.PhysicalMinimum;
-            signal.PhysicalMaximum.Value = signalData.PhysicalMaximum;
-            signal.DigitalMinimum.Value = (int)Math.Floor(signalData.DigitalMinimum);
-            signal.DigitalMaximum.Value = (int)Math.Ceiling(signalData.DigitalMaximum);
+            signal.PhysicalMinimum = signalData.PhysicalMinimum;
+            signal.PhysicalMaximum = signalData.PhysicalMaximum;
+            signal.DigitalMinimum = (int)Math.Floor(signalData.DigitalMinimum);
+            signal.DigitalMaximum = (int)Math.Ceiling(signalData.DigitalMaximum);
 
-            // Sample count: determine how many samples per second we want to write.
-            long min = signalData.DataPoints.Select(x => x.timestamp).Min();
-            long max = signalData.DataPoints.Select(x => x.timestamp).Max();
-            long duration = max - min;
-
-            // Note: duration is in ms.
-            signal.SampleCountPerRecord.Value = (int)(duration / recordDurationInSeconds / 1000);
-            signal.Samples = signalData.DataPoints.Select(x => (short)x.value).ToList();
-
-            signal.Reserved.Value = "RESERVED";
+            // This should be accurate, provided that the sample rate is consistent
+            // and covers the whole time period the caller is recording for.
+            signal.SampleCountPerRecord = signalData.DataPoints.Count() / recordCount;
 
             return signal;
         }
 
-        public static Signal ToEDFSignal(this EEGSignalMetadata signalMetadata)
+        public static SignalHeader ToEDFSignalHeader(this EEGSignalMetadata signalMetadata)
         {
-            Signal signal = new Signal();
-
-            signal.Label.Value = signalMetadata.Label;
-            signal.PhysicalDimension.Value = signalMetadata.Units;
-            signal.Prefiltering.Value = signalMetadata.Prefiltering;
-            signal.TransducerType.Value = signalMetadata.TransducerType;
+            SignalHeader signal = new SignalHeader
+            {
+                Label = signalMetadata.Label,
+                PhysicalDimension = signalMetadata.Units,
+                Prefiltering = signalMetadata.Prefiltering,
+                TransducerType = signalMetadata.TransducerType
+            };
 
             return signal;
         }

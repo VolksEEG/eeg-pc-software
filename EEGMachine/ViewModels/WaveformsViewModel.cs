@@ -11,7 +11,7 @@ namespace EEGMachine.ViewModels
 {
     public class WaveformsViewModel : ObservableObject, ITimeRange
     {
-        // For now, simply instantiates five Waveforms.
+        // For now, simply instantiates some Waveforms.
         public WaveformsViewModel()
         {
             List<WaveformViewModel> waveforms = new List<WaveformViewModel>();

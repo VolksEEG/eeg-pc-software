@@ -1,4 +1,5 @@
-﻿using EEGDataHandling;
+﻿using EDFLib;
+using EEGDataHandling;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using EDFFile = SharpLib.EuropeanDataFormat.File;
+using System.Threading.Tasks;
 
 namespace EEGMachineTests
 {
@@ -14,8 +15,9 @@ namespace EEGMachineTests
     {
         // Write an EDF File.
         [Test]
-        public void TestWriteEDFFile()
+        public async Task TestWriteEDFFile()
         {
+            Console.WriteLine(Directory.GetCurrentDirectory());
             // Using a specific date time offset for ease of verification.
             var startTime = DateTimeOffset.Parse("2021-11-19 06:09:00Z");
 
@@ -55,7 +57,7 @@ namespace EEGMachineTests
             var dataPoints = new List<(long timestamp, double value)>();
             for (int i = 0; i < 20; i++)
             {
-                dataPoints.Add((startTimeMs + i*500, i));
+                dataPoints.Add((startTimeMs + i * 500, i));
             }
 
             mock.Setup(x => x.DataPoints).Returns(dataPoints);
@@ -71,36 +73,39 @@ namespace EEGMachineTests
             Console.WriteLine(fileContent);
 
             // Read file as EDF
-            var edf2 = new EDFFile(edfFileName);
+            EDFLib.EDFReader reader = new EDFLib.EDFReader(null);
 
-            Assert.AreEqual("0", edf2.Header.Version.Value, "Version mismatch");
-            Assert.AreEqual(metadata.PatientID, edf2.Header.PatientID.Value, "PatientID mismatch");
-            Assert.AreEqual(metadata.RecordingID, edf2.Header.RecordID.Value, "RecordID mismatch");
-            Assert.AreEqual(metadata.StartTime.ToString("dd.MM.yy"), edf2.Header.RecordingStartDate.Value, "RecordStartDate mismatch");
-            Assert.AreEqual(metadata.StartTime.ToString("hh.mm.ss"), edf2.Header.RecordingStartTime.Value, "RecordStartTime mismatch");
-            Assert.AreEqual(10, edf2.Header.RecordCount.Value, "RecordCount mismatch");
-            Assert.AreEqual(1, edf2.Header.SignalCount.Value, "SignalCount mismatch");
-
-            Assert.AreEqual("RESERVED", edf2.Header.Reserved.Value, $"Header Reserved mismatch");
-
-            Assert.AreEqual(1, edf2.Signals.Length, "Signals Length mismatch");
-
-            for (int i = 0; i < edf2.Signals.Length; i++)
+            using (Stream stream = File.OpenRead(edfFileName))
             {
-                Assert.AreEqual(2, edf2.Signals[i].SampleCountPerRecord.Value, $"Signal {i} SampleCountPerRecord mismatch");
-                Assert.AreEqual(signalMetadata.Units,  edf2.Signals[i].PhysicalDimension.Value, $"Signal {i} PhysicalDimension mismatch");
-                Assert.AreEqual(signalMetadata.Prefiltering, edf2.Signals[i].Prefiltering.Value, $"Signal {i} Prefiltering mismatch");
-                Assert.AreEqual(signalMetadata.TransducerType, edf2.Signals[i].TransducerType.Value, $"Signal {i} TransducerType mismatch");
-                Assert.AreEqual(mock.Object.PhysicalMinimum, edf2.Signals[i].PhysicalMinimum.Value, $"Signal {i} PhysicalMinimum mismatch");
-                Assert.AreEqual(mock.Object.PhysicalMaximum, edf2.Signals[i].PhysicalMaximum.Value, $"Signal {i} PhysicalMaximum mismatch");
+                // This will probably change - could do EDFReader.Read
+                var header = await reader.ReadHeader(stream);
 
-                Assert.AreEqual("RESERVED", edf2.Signals[i].Reserved.Value, $"Signal {i} Reserved mismatch");
+                Assert.AreEqual(metadata.PatientID, header.PatientID, "PatientID mismatch");
+                Assert.AreEqual(metadata.RecordingID, header.RecordingID, "RecordID mismatch");
+                Assert.AreEqual(metadata.StartTime.ToString("dd.MM.yy"), header.RecordingStartDateString, "RecordStartDate mismatch");
+                Assert.AreEqual(metadata.StartTime.ToString("hh.mm.ss"), header.RecordingStartTimeString, "RecordStartTime mismatch");
+                Assert.AreEqual(10, header.NumberOfRecords, "RecordCount mismatch");
+                Assert.AreEqual(1, header.SignalCount, "SignalCount mismatch");
 
-                CollectionAssert.AreEqual(mock.Object.DataPoints.Select(x => x.value), edf2.Signals[i].Samples);
+                Assert.AreEqual(1, header.SignalHeaders.Count, "Signal headers Length mismatch");
+
+                for (int i = 0; i < header.SignalHeaders.Count; i++)
+                {
+                    Assert.AreEqual(2, header.SignalHeaders[i].SampleCountPerRecord, $"Signal {i} SampleCountPerRecord mismatch");
+                    Assert.AreEqual(signalMetadata.Units, header.SignalHeaders[i].PhysicalDimension, $"Signal {i} PhysicalDimension mismatch");
+                    Assert.AreEqual(signalMetadata.Prefiltering, header.SignalHeaders[i].Prefiltering, $"Signal {i} Prefiltering mismatch");
+                    Assert.AreEqual(signalMetadata.TransducerType, header.SignalHeaders[i].TransducerType, $"Signal {i} TransducerType mismatch");
+                    Assert.AreEqual(mock.Object.PhysicalMinimum, header.SignalHeaders[i].PhysicalMinimum, $"Signal {i} PhysicalMinimum mismatch");
+                    Assert.AreEqual(mock.Object.PhysicalMaximum, header.SignalHeaders[i].PhysicalMaximum, $"Signal {i} PhysicalMaximum mismatch");
+                    Assert.AreEqual(mock.Object.DigitalMinimum, header.SignalHeaders[i].DigitalMinimum, $"Signal {i} DigitalMinimum mismatch");
+                    Assert.AreEqual(mock.Object.DigitalMaximum, header.SignalHeaders[i].DigitalMaximum, $"Signal {i} DigitalMaximum mismatch");
+
+                    //CollectionAssert.AreEqual(mock.Object.DataPoints.Select(x => (short)x.value), edf2.Signals[i].Samples);
+                }
+
+                // clean up the file.
+                //File.Delete(edfFileName);
             }
-
-            // clean up the file.
-            File.Delete(edfFileName);
         }
     }
 }
