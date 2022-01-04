@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static EDFLib.Header;
@@ -23,9 +24,13 @@ namespace EDFLib
             // Read header
             Header header = await ReadHeader(stream);
 
+            // Read signals
+            List<Signal> signals = ReadSignals(stream, header);
+
             return new EDFFile()
             {
-                Header = header
+                Header = header,
+                Signals = signals
             };
         }
 
@@ -43,7 +48,8 @@ namespace EDFLib
         // Accepts optional logger as parameter
         public async Task<Header> ReadHeader(Stream stream)
         {
-            using (StreamReader streamReader = new StreamReader(stream))
+            // Final parameter is "LeaveOpen" - necessary because we will use 
+            using (StreamReader streamReader = new StreamReader(stream, Encoding.ASCII, false, HEADER_FIXED_SIZE, true))
             {
                 Header header = new Header();
 
@@ -212,6 +218,48 @@ namespace EDFLib
                 header.SignalHeaders = signalHeaders;
 
                 return header;
+            }
+        }
+
+        public List<Signal> ReadSignals(Stream stream, Header header)
+        {
+            // Initialize list of signals.
+            List<Signal> signals = new List<Signal>();
+
+            foreach (SignalHeader signalHeader in header.SignalHeaders)
+            {
+                signals.Add(new Signal(signalHeader));
+            }
+
+            // Final parameter is leaveOpen, which we set as true because we want to dispose the Stream
+            // when we ourselves get disposed.
+            using (BinaryReader reader = new BinaryReader(stream, Encoding.Default, true))
+            {
+                // Read one data record at a time.
+                for (int i = 0; i < header.NumberOfRecords; i++)
+                {
+                    ReadDataRecord(reader, signals);
+                }
+            }
+
+            return signals;
+        }
+
+        /// <summary>
+        /// Reads the next available data record from BinaryReader, and appends
+        /// the read values to each Signal in the provided list.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="signals">A list of signals. The SampleCountPerRecord property of each Signal's
+        /// SignalHeader will determine how many values are read from the BinaryReader.</param>
+        public void ReadDataRecord(BinaryReader reader, List<Signal> signals)
+        {
+            foreach (Signal signal in signals)
+            {
+                for (int i = 0; i < signal.SignalHeader.SampleCountPerRecord; i++)
+                {
+                    signal.Values.Add(reader.ReadInt16());
+                }
             }
         }
 
