@@ -8,9 +8,17 @@ namespace EDFLib
 {
     public class Signal
     {
-        // Contains signal data only.
+        public Signal(SignalHeader signalHeader)
+        {
+            SignalHeader = signalHeader;
+        }
+
+        // References its Signal Header.
+        public SignalHeader SignalHeader { get; set; }
+
         // Maybe include a start time to support annotations?
 
-        public List<short> Values { get; set; }
+        // Contains signal data.
+        public List<short> Values { get; set; } = new List<short>();
     }
 }

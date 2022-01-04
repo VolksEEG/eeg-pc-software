@@ -62,23 +62,24 @@ namespace EEGMachineTests
 
             mock.Setup(x => x.DataPoints).Returns(dataPoints);
 
-            EDFWriter writer = new EDFWriter(metadata, new List<IEEGData>() { mock.Object });
-
             var edfFileName = "test.edf";
 
-            writer.Write(edfFileName);
+            using (EDFWriter writer = new EDFWriter(edfFileName, null))
+            {
+                writer.WriteEEG(metadata, new List<IEEGData>() { mock.Object });
+            }
 
             // Read file as string.
-            string fileContent = File.ReadAllText(edfFileName);
-            Console.WriteLine(fileContent);
+            //string fileContent = File.ReadAllText(edfFileName);
+            //Console.WriteLine(fileContent);
 
             // Read file as EDF
-            EDFLib.EDFReader reader = new EDFLib.EDFReader(null);
+            EDFReader reader = new EDFReader(null);
 
             using (Stream stream = File.OpenRead(edfFileName))
             {
-                // This will probably change - could do EDFReader.Read
-                var header = await reader.ReadHeader(stream);
+                var edfFile = await reader.Read(stream);
+                var header = edfFile.Header;
 
                 Assert.AreEqual(metadata.PatientID, header.PatientID, "PatientID mismatch");
                 Assert.AreEqual(metadata.RecordingID, header.RecordingID, "RecordID mismatch");
@@ -100,12 +101,12 @@ namespace EEGMachineTests
                     Assert.AreEqual(mock.Object.DigitalMinimum, header.SignalHeaders[i].DigitalMinimum, $"Signal {i} DigitalMinimum mismatch");
                     Assert.AreEqual(mock.Object.DigitalMaximum, header.SignalHeaders[i].DigitalMaximum, $"Signal {i} DigitalMaximum mismatch");
 
-                    //CollectionAssert.AreEqual(mock.Object.DataPoints.Select(x => (short)x.value), edf2.Signals[i].Samples);
+                    CollectionAssert.AreEqual(mock.Object.DataPoints.Select(x => (short)x.value), edfFile.Signals[i].Values);
                 }
-
-                // clean up the file.
-                //File.Delete(edfFileName);
             }
+
+            // clean up the file.
+            File.Delete(edfFileName);
         }
     }
 }
