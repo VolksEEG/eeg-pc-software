@@ -9,6 +9,7 @@ namespace EEGDataHandling
 {
     /// <summary>
     /// A class for holding mocked EEG data for testing.
+    /// </summary>
     public class EEGDataGenerator : IEEGData
     {
         // Set capacity to 30 seconds at 500 samples/second
