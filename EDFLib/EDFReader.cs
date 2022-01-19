@@ -271,7 +271,7 @@ namespace EDFLib
 
             while (index < length && !streamReader.EndOfStream)
             {
-                // Read 8 characters
+                // Read length characters
                 int bytesRead = await streamReader.ReadAsync(fieldBytes, index, length);
                 index += bytesRead;
             }

@@ -9,10 +9,12 @@
     <StackPanel>
         <!-- Contributors -->
         <TextBlock Style="{StaticResource HeaderText}">Contributors</TextBlock>
+        <TextBlock>Rhiannon Tully-Barr</TextBlock>
 
         <!-- Open Source Software -->
         <TextBlock Style="{StaticResource HeaderText}">Open Source Software</TextBlock>
         <TextBlock>Skia</TextBlock>
         <TextBlock>Serilog</TextBlock>
+        <TextBlock>Moq</TextBlock>
     </StackPanel>
 </UserControl>

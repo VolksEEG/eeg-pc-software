@@ -14,7 +14,7 @@ namespace EEGMachineTests
     public class EDFWriterTest
     {
         // Write an EDF File.
-        [Test]
+        [Test, Description("Writes mock data to an EDF file, reads it back in, and checks the data read matches the data written.")]
         public async Task TestWriteEDFFile()
         {
             Console.WriteLine(Directory.GetCurrentDirectory());
@@ -30,48 +30,89 @@ namespace EEGMachineTests
                 StartTime = startTime
             };
 
-            // Initialize signal metadata for one signal
-            EEGSignalMetadata signalMetadata = new EEGSignalMetadata()
+            // Initialize signal metadata for the first signal
+            EEGSignalMetadata firstSignalMetadata = new EEGSignalMetadata()
             {
-                Label = "Label",
+                Label = "Label1",
                 Units = "Units",
                 TransducerType = "Transducer type",
                 Prefiltering = "Prefiltering"
             };
 
-            // Mock IEEGData
-            var mock = new Mock<IEEGData>();
+            // Initialize signal metadata for the second signal
+            EEGSignalMetadata secondSignalMetadata = new EEGSignalMetadata()
+            {
+                Label = "Label2",
+                Units = "Units",
+                TransducerType = "Transducer type",
+                Prefiltering = "Prefiltering"
+            };
+
+            // Placing in a list for ease of comparison later.
+            List<EEGSignalMetadata> signalHeaders = new List<EEGSignalMetadata>()
+            {
+                firstSignalMetadata, secondSignalMetadata
+            };
+
+            // Mock first signal's IEEGData
+            Mock<IEEGData> firstMockSignal = new Mock<IEEGData>();
 
             // Return our signalMetadata
-            mock.Setup(x => x.SignalMetadata).Returns(signalMetadata);
+            firstMockSignal.Setup(x => x.SignalMetadata).Returns(firstSignalMetadata);
 
             // Mock other relevant properties
-            mock.Setup(x => x.PhysicalMinimum).Returns(-20);
-            mock.Setup(x => x.PhysicalMaximum).Returns(20);
-            mock.Setup(x => x.DigitalMinimum).Returns(0);
-            mock.Setup(x => x.DigitalMaximum).Returns(20);
+            firstMockSignal.Setup(x => x.PhysicalMinimum).Returns(-20);
+            firstMockSignal.Setup(x => x.PhysicalMaximum).Returns(20);
+            firstMockSignal.Setup(x => x.DigitalMinimum).Returns(0);
+            firstMockSignal.Setup(x => x.DigitalMaximum).Returns(20);
 
-            // Mock sample data - 2 samples/second (total of 20 samples.)
+            // Mock sample data - 2 samples/second (total of 20 samples).
             long startTimeMs = startTime.ToUnixTimeMilliseconds();
+            Random random = new Random();
 
             var dataPoints = new List<(long timestamp, double value)>();
             for (int i = 0; i < 20; i++)
             {
-                dataPoints.Add((startTimeMs + i * 500, i));
+                dataPoints.Add((startTimeMs + i * 500, random.NextDouble() * 20));
             }
 
-            mock.Setup(x => x.DataPoints).Returns(dataPoints);
+            // Output data points (to better diagnose test failures, since this test case uses
+            // random inputs).
+            Console.WriteLine($"First Signal Values - {string.Join(',', dataPoints.Select(x => $"{x.timestamp}ms:{x.value}"))}");
+
+            firstMockSignal.Setup(x => x.DataPoints).Returns(dataPoints);
+
+            // Mock second signal's IEEGData
+            Mock<IEEGData> secondMockSignal = new Mock<IEEGData>();
+
+            // Return our signalMetadata
+            secondMockSignal.Setup(x => x.SignalMetadata).Returns(firstSignalMetadata);
+
+            // Mock other relevant properties
+            secondMockSignal.Setup(x => x.PhysicalMinimum).Returns(-1.7);
+            secondMockSignal.Setup(x => x.PhysicalMaximum).Returns(2.9);
+            secondMockSignal.Setup(x => x.DigitalMinimum).Returns(-10);
+            secondMockSignal.Setup(x => x.DigitalMaximum).Returns(10);
+
+            // Mock sample data - 10 samples/second (total of 100 samples).
+            dataPoints = new List<(long timestamp, double value)>();
+            for (int i = 0; i < 100; i++)
+            {
+                dataPoints.Add((startTimeMs + i * 100, random.NextDouble() * 20 - 10));
+            }
+
+            Console.WriteLine($"Second Signal Values - {string.Join(',', dataPoints.Select(x => $"{x.timestamp}ms:{x.value}"))}");
+
+            secondMockSignal.Setup(x => x.DataPoints).Returns(dataPoints);
 
             var edfFileName = "test.edf";
 
+            List<IEEGData> signals = new List<IEEGData>() { firstMockSignal.Object, secondMockSignal.Object };
+
             using (EDFWriter writer = new EDFWriter(edfFileName, null))
             {
-                writer.WriteEEG(metadata, new List<IEEGData>() { mock.Object });
+                writer.WriteEEG(metadata, signals);
             }
-
-            // Read file as string.
-            //string fileContent = File.ReadAllText(edfFileName);
-            //Console.WriteLine(fileContent);
 
             // Read file as EDF
             EDFReader reader = new EDFReader(null);
@@ -86,22 +127,28 @@ namespace EEGMachineTests
                 Assert.AreEqual(metadata.StartTime.ToString("dd.MM.yy"), header.RecordingStartDateString, "RecordStartDate mismatch");
                 Assert.AreEqual(metadata.StartTime.ToString("hh.mm.ss"), header.RecordingStartTimeString, "RecordStartTime mismatch");
                 Assert.AreEqual(10, header.NumberOfRecords, "RecordCount mismatch");
-                Assert.AreEqual(1, header.SignalCount, "SignalCount mismatch");
+                Assert.AreEqual(2, header.SignalCount, "SignalCount mismatch");
 
-                Assert.AreEqual(1, header.SignalHeaders.Count, "Signal headers Length mismatch");
+                Assert.AreEqual(2, header.SignalHeaders.Count, "Signal headers Length mismatch");
+
+                // First signal: 2 samples/record.
+                Assert.AreEqual(2, header.SignalHeaders[0].SampleCountPerRecord, $"Signal 0 SampleCountPerRecord mismatch");
+
+                // Second signal: 10 samples/record.
+                Assert.AreEqual(10, header.SignalHeaders[1].SampleCountPerRecord, $"Signal 1 SampleCountPerRecord mismatch");
 
                 for (int i = 0; i < header.SignalHeaders.Count; i++)
                 {
-                    Assert.AreEqual(2, header.SignalHeaders[i].SampleCountPerRecord, $"Signal {i} SampleCountPerRecord mismatch");
-                    Assert.AreEqual(signalMetadata.Units, header.SignalHeaders[i].PhysicalDimension, $"Signal {i} PhysicalDimension mismatch");
-                    Assert.AreEqual(signalMetadata.Prefiltering, header.SignalHeaders[i].Prefiltering, $"Signal {i} Prefiltering mismatch");
-                    Assert.AreEqual(signalMetadata.TransducerType, header.SignalHeaders[i].TransducerType, $"Signal {i} TransducerType mismatch");
-                    Assert.AreEqual(mock.Object.PhysicalMinimum, header.SignalHeaders[i].PhysicalMinimum, $"Signal {i} PhysicalMinimum mismatch");
-                    Assert.AreEqual(mock.Object.PhysicalMaximum, header.SignalHeaders[i].PhysicalMaximum, $"Signal {i} PhysicalMaximum mismatch");
-                    Assert.AreEqual(mock.Object.DigitalMinimum, header.SignalHeaders[i].DigitalMinimum, $"Signal {i} DigitalMinimum mismatch");
-                    Assert.AreEqual(mock.Object.DigitalMaximum, header.SignalHeaders[i].DigitalMaximum, $"Signal {i} DigitalMaximum mismatch");
+                    Assert.AreEqual(signalHeaders[i].Units, header.SignalHeaders[i].PhysicalDimension, $"Signal {i} PhysicalDimension mismatch");
+                    Assert.AreEqual(signalHeaders[i].Prefiltering, header.SignalHeaders[i].Prefiltering, $"Signal {i} Prefiltering mismatch");
+                    Assert.AreEqual(signalHeaders[i].TransducerType, header.SignalHeaders[i].TransducerType, $"Signal {i} TransducerType mismatch");
+                    
+                    Assert.AreEqual(signals[i].PhysicalMinimum, header.SignalHeaders[i].PhysicalMinimum, $"Signal {i} PhysicalMinimum mismatch");
+                    Assert.AreEqual(signals[i].PhysicalMaximum, header.SignalHeaders[i].PhysicalMaximum, $"Signal {i} PhysicalMaximum mismatch");
+                    Assert.AreEqual(signals[i].DigitalMinimum, header.SignalHeaders[i].DigitalMinimum, $"Signal {i} DigitalMinimum mismatch");
+                    Assert.AreEqual(signals[i].DigitalMaximum, header.SignalHeaders[i].DigitalMaximum, $"Signal {i} DigitalMaximum mismatch");
 
-                    CollectionAssert.AreEqual(mock.Object.DataPoints.Select(x => (short)x.value), edfFile.Signals[i].Values);
+                    CollectionAssert.AreEqual(signals[i].DataPoints.Select(x => (short)x.value), edfFile.Signals[i].Values);
                 }
             }
 
