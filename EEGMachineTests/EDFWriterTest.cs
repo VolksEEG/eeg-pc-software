@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EEGMachineTests
@@ -14,10 +13,12 @@ namespace EEGMachineTests
     public class EDFWriterTest
     {
         // Write an EDF File.
-        [Test, Description("Writes mock data to an EDF file, reads it back in, and checks the data read matches the data written.")]
+        [Test]
+        [Description("Writes mock data to an EDF file, reads it back in, and checks the data read matches the data written.")]
         public async Task TestWriteEDFFile()
         {
             Console.WriteLine(Directory.GetCurrentDirectory());
+
             // Using a specific date time offset for ease of verification.
             var startTime = DateTimeOffset.Parse("2021-11-19 06:09:00Z");
 
@@ -27,7 +28,7 @@ namespace EEGMachineTests
                 PatientID = "Patient ID",
                 RecordingID = "Recording ID",
                 RecordDurationInSeconds = 1,
-                StartTime = startTime
+                StartTime = startTime,
             };
 
             // Initialize signal metadata for the first signal
@@ -36,7 +37,7 @@ namespace EEGMachineTests
                 Label = "Label1",
                 Units = "Units",
                 TransducerType = "Transducer type",
-                Prefiltering = "Prefiltering"
+                Prefiltering = "Prefiltering",
             };
 
             // Initialize signal metadata for the second signal
@@ -45,13 +46,13 @@ namespace EEGMachineTests
                 Label = "Label2",
                 Units = "Units",
                 TransducerType = "Transducer type",
-                Prefiltering = "Prefiltering"
+                Prefiltering = "Prefiltering",
             };
 
             // Placing in a list for ease of comparison later.
             List<EEGSignalMetadata> signalHeaders = new List<EEGSignalMetadata>()
             {
-                firstSignalMetadata, secondSignalMetadata
+                firstSignalMetadata, secondSignalMetadata,
             };
 
             // Mock first signal's IEEGData
@@ -73,7 +74,7 @@ namespace EEGMachineTests
             var dataPoints = new List<(long timestamp, double value)>();
             for (int i = 0; i < 20; i++)
             {
-                dataPoints.Add((startTimeMs + i * 500, random.NextDouble() * 20));
+                dataPoints.Add((startTimeMs + (i * 500), random.NextDouble() * 20));
             }
 
             // Output data points (to better diagnose test failures, since this test case uses
@@ -98,7 +99,7 @@ namespace EEGMachineTests
             dataPoints = new List<(long timestamp, double value)>();
             for (int i = 0; i < 100; i++)
             {
-                dataPoints.Add((startTimeMs + i * 100, random.NextDouble() * 20 - 10));
+                dataPoints.Add((startTimeMs + (i * 100), (random.NextDouble() * 20) - 10));
             }
 
             Console.WriteLine($"Second Signal Values - {string.Join(',', dataPoints.Select(x => $"{x.timestamp}ms:{x.value}"))}");
@@ -142,7 +143,7 @@ namespace EEGMachineTests
                     Assert.AreEqual(signalHeaders[i].Units, header.SignalHeaders[i].PhysicalDimension, $"Signal {i} PhysicalDimension mismatch");
                     Assert.AreEqual(signalHeaders[i].Prefiltering, header.SignalHeaders[i].Prefiltering, $"Signal {i} Prefiltering mismatch");
                     Assert.AreEqual(signalHeaders[i].TransducerType, header.SignalHeaders[i].TransducerType, $"Signal {i} TransducerType mismatch");
-                    
+
                     Assert.AreEqual(signals[i].PhysicalMinimum, header.SignalHeaders[i].PhysicalMinimum, $"Signal {i} PhysicalMinimum mismatch");
                     Assert.AreEqual(signals[i].PhysicalMaximum, header.SignalHeaders[i].PhysicalMaximum, $"Signal {i} PhysicalMaximum mismatch");
                     Assert.AreEqual(signals[i].DigitalMinimum, header.SignalHeaders[i].DigitalMinimum, $"Signal {i} DigitalMinimum mismatch");

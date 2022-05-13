@@ -9,12 +9,12 @@ using Serilog;
 namespace EEGMachine
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Interaction logic for App.xaml.
     /// </summary>
     public partial class App : Application
     {
-        private IConfiguration _configuration;
-        private ServiceProvider _serviceProvider;
+        private IConfiguration configuration;
+        private ServiceProvider serviceProvider;
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
@@ -31,7 +31,7 @@ namespace EEGMachine
 
             services.AddLogging();
 
-            _serviceProvider = services.BuildServiceProvider();
+            serviceProvider = services.BuildServiceProvider();
         }
 
         private void BuildConfiguration()
@@ -40,17 +40,17 @@ namespace EEGMachine
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-            _configuration = builder.Build();
+            configuration = builder.Build();
         }
 
         private void ConfigureLogger()
         {
             // Initialize logger (serilog).
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(_configuration)
+                .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
-            ILoggerFactory loggerFactory = _serviceProvider.GetRequiredService<ILoggerFactory>();
+            ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 
             loggerFactory.AddSerilog();
 

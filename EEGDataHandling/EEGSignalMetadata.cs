@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EEGDataHandling
+﻿namespace EEGDataHandling
 {
     /// <summary>
     /// Container class for metadata concerning an EEG signal,
