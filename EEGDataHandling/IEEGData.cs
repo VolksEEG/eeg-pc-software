@@ -3,6 +3,16 @@ using System.Collections.Generic;
 
 namespace EEGDataHandling
 {
+    public class EEGData : EventArgs
+    {
+        public double[] channelData;
+
+        public EEGData(double[] chanData)
+        {
+            this.channelData = chanData;
+        }
+    }
+
     public interface IEEGData
     {
         event EventHandler DataUpdated;
@@ -20,6 +30,6 @@ namespace EEGDataHandling
         /// <summary>
         /// EEG data points contained within this channel.
         /// </summary>
-        IEnumerable<(long timestamp, double value)> DataPoints { get; }
+        IEnumerable<(long timestamp, EEGData values)> DataPoints { get; }
     }
 }

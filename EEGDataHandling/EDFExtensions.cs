@@ -42,7 +42,7 @@ namespace EEGDataHandling
 
             List<Signal> signals = channelData.Select(x => new Signal(x.ToEDFSignalHeader(header.NumberOfRecords))
             {
-                Values = x.DataPoints.Select(d => (short)d.value).ToList()
+                Values = x.DataPoints.Select(d => (short)d.values.channelData[0]).ToList()
             }).ToList();
 
             EDFFile file = new EDFFile
