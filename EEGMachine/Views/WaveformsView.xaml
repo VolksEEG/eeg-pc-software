@@ -11,12 +11,14 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <StackPanel Orientation="Horizontal">
-            <Button Command="{Binding StartCaptureCommand}" Margin="2,2">Start Capture</Button>
+            <ComboBox x:Name="CBB_PortSelection" SelectedValue="{Binding SelectedPort}" Width="120" Margin="2,2,2,2"/>
+            <Button Command="{Binding ConnectCommand}" Content="Connect" Width="92" Margin="2,2"/>
             <Button Command="{Binding StopCaptureCommand}" Margin="2,2">Stop Capture</Button>
+            <Button Command="{Binding StartCaptureCommand}" Content="Start Capture" Margin="2,2"/>
         </StackPanel>
-        
+
         <ItemsControl Grid.Row="2" x:Name="Waveforms" ItemsSource="{Binding Waveforms}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>

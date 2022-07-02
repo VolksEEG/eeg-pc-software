@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DeviceCommunications\DeviceCommunications.csproj" />
     <ProjectReference Include="..\EEGDataHandling\EEGDataHandling.csproj" />
   </ItemGroup>
 

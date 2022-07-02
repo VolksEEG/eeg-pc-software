@@ -71,10 +71,10 @@ namespace EEGMachineTests
             long startTimeMs = startTime.ToUnixTimeMilliseconds();
             Random random = new Random();
 
-            var dataPoints = new List<(long timestamp, double value)>();
+            var dataPoints = new List<(long timestamp, EEGData value)>();
             for (int i = 0; i < 20; i++)
             {
-                dataPoints.Add((startTimeMs + (i * 500), random.NextDouble() * 20));
+                dataPoints.Add(((startTimeMs + (i * 500)), new EEGData(new double[] { (random.NextDouble() * 20)})));
             }
 
             // Output data points (to better diagnose test failures, since this test case uses
@@ -96,10 +96,10 @@ namespace EEGMachineTests
             secondMockSignal.Setup(x => x.DigitalMaximum).Returns(10);
 
             // Mock sample data - 10 samples/second (total of 100 samples).
-            dataPoints = new List<(long timestamp, double value)>();
+            dataPoints = new List<(long timestamp, EEGData value)>();
             for (int i = 0; i < 100; i++)
             {
-                dataPoints.Add((startTimeMs + (i * 100), (random.NextDouble() * 20) - 10));
+                dataPoints.Add(((startTimeMs + (i * 100)), new EEGData(new double[] { ((random.NextDouble() * 20) - 10)})));
             }
 
             Console.WriteLine($"Second Signal Values - {string.Join(',', dataPoints.Select(x => $"{x.timestamp}ms:{x.value}"))}");
@@ -149,7 +149,7 @@ namespace EEGMachineTests
                     Assert.AreEqual(signals[i].DigitalMinimum, header.SignalHeaders[i].DigitalMinimum, $"Signal {i} DigitalMinimum mismatch");
                     Assert.AreEqual(signals[i].DigitalMaximum, header.SignalHeaders[i].DigitalMaximum, $"Signal {i} DigitalMaximum mismatch");
 
-                    CollectionAssert.AreEqual(signals[i].DataPoints.Select(x => (short)x.value), edfFile.Signals[i].Values);
+                    CollectionAssert.AreEqual(signals[i].DataPoints.Select(x => (short)x.values.channelData[0]), edfFile.Signals[i].Values);
                 }
             }
 

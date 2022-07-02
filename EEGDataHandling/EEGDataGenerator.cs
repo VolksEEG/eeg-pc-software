@@ -21,17 +21,17 @@ namespace EEGDataHandling
         /// </summary>
         public EEGDataGenerator()
         {
-            _dataPoints = new ConcurrentQueue<(long, double)>();
+            _dataPoints = new ConcurrentQueue<(long, EEGData)>();
         }
 
         public event EventHandler DataUpdated;
 
         private object _dataPointsLock = new object();
 
-        private readonly ConcurrentQueue<(long, double)> _dataPoints;
+        private readonly ConcurrentQueue<(long, EEGData)> _dataPoints;
 
         // Returns a copy whenever it's accessed, to avoid concurrency issues.
-        public IEnumerable<(long, double)> DataPoints
+        public IEnumerable<(long, EEGData)> DataPoints
         {
             get
             {
@@ -105,16 +105,16 @@ namespace EEGDataHandling
 
         public void GenerateDataPoint(long timeMs)
         {
-            double voltage = Math.Sin(timeMs / 1000.0 * Math.PI);
+            double voltage = (Math.Sin(timeMs / 1000.0 * Math.PI) * 100);
 
-            AddDataPoint(timeMs, voltage);
+            AddDataPoint(timeMs, new EEGData(new double[] { voltage, voltage, voltage, voltage, voltage, voltage, voltage, voltage}));
         }
 
-        public void AddDataPoint(long timeMs, double voltage)
+        public void AddDataPoint(long timeMs, EEGData voltages)
         {
             lock (_dataPointsLock)
             {
-                _dataPoints.Enqueue((timeMs, voltage));
+                _dataPoints.Enqueue((timeMs, voltages));
 
                 if (_dataPoints.Count > QUEUE_CAPACITY)
                 {

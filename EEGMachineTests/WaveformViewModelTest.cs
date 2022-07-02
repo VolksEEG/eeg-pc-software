@@ -25,7 +25,7 @@ namespace EEGMachineTests
         public void TestWaveformViewModelDrawsLine()
         {
             // Set up IEEGData to have a straight line as its data points.
-            List<(long, double)> line = new List<(long, double)>() { (0, 0.5), (1000, 0.5), (2000, 0.5) };
+            List<(long, EEGData)> line = new List<(long, EEGData)>() { (0, new EEGData(new double[] { 0.5 })), (1000, new EEGData(new double[] { 0.5 })), (2000, new EEGData(new double[] { 0.5 })) };
             _mockEEGData.Setup(x => x.DataPoints).Returns(line);
             _mockEEGData.Setup(x => x.LastUpdateTime).Returns(2000);
             _mockEEGData.Setup(x => x.DigitalMinimum).Returns(0);

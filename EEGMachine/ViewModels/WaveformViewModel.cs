@@ -91,7 +91,7 @@ namespace EEGMachine.ViewModels
             // First path is the expected one (current data).
             // TODO: This can probably be simplified, and we could cache the SKPath
             // objects we're creating here.
-            foreach ((long time, double value) in EEGData.DataPoints)
+            foreach ((long time, EEGData value) in EEGData.DataPoints)
             {
                 // Find the first point that we're going to draw.
                 if (time < LastUpdateTime - TimeRange.Duration + OLD_TO_NEW_INTERVAL)
@@ -104,11 +104,11 @@ namespace EEGMachine.ViewModels
                     if (!startedOldData)
                     {
                         startedOldData = true;
-                        oldData.MoveTo(time - (TimeRange.StartTime - TimeRange.Duration), (float)value);
+                        oldData.MoveTo(time - (TimeRange.StartTime - TimeRange.Duration), (float)value.channelData[0]);
                     }
                     else
                     {
-                        oldData.LineTo(time - (TimeRange.StartTime - TimeRange.Duration), (float)value);
+                        oldData.LineTo(time - (TimeRange.StartTime - TimeRange.Duration), (float)value.channelData[0]);
                     }
                 }
                 else if (time >= TimeRange.StartTime && time <= TimeRange.EndTime)
@@ -116,11 +116,11 @@ namespace EEGMachine.ViewModels
                     if (!startedNewData)
                     {
                         startedNewData = true;
-                        newData.MoveTo(time - TimeRange.StartTime, (float)value);
+                        newData.MoveTo(time - TimeRange.StartTime, (float)value.channelData[0]);
                     }
                     else
                     {
-                        newData.LineTo(time - TimeRange.StartTime, (float)value);
+                        newData.LineTo(time - TimeRange.StartTime, (float)value.channelData[0]);
                     }
                 }
                 else
