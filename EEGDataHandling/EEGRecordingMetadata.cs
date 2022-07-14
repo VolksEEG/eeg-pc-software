@@ -5,7 +5,8 @@ namespace EEGDataHandling
     /// <summary>
     /// Container class for metadata concerning an EEG recording session,
     /// such as patient ID, location, etc.
-    /// Currently just contains whatever is required to support EDF files;
+    /// Currently just contains whatever is required to sup
+    /// EDF files;
     /// it may be useful to break this class up and/or add more fields, depending
     /// on where else in the application these properties are needed, when they're
     /// entered, etc.
