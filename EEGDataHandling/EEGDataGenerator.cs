@@ -15,6 +15,7 @@ namespace EEGDataHandling
         private const int QUEUE_CAPACITY = 500 * 30;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="EEGDataGenerator"/> class.
         /// Generator for time-series EEG data
         /// For simplicity (for now), timestamps are in milliseconds from
         /// 'start' and values are in the range (0, 1).

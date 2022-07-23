@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EDFLib\EDFLib.csproj" />
+    <ProjectReference Include="..\SerialCommunication\SerialCommunication.csproj" />
   </ItemGroup>
 
 </Project>
