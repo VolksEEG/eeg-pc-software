@@ -60,7 +60,7 @@
                 Packet = DoubletsToPacket(Bytes, Packet);
 
                 //test for beginning = FFFF
-                if (Bytes[0] == 0xFF && Bytes[1] == 0xFF)
+                if (Bytes[0] == 0xAA && Bytes[1] == 0x55)
                 {
                     synchronized = true;
                     return true;
@@ -71,59 +71,6 @@
                 }
             }
         }
-
-        /// <summary>
-        /// Adds a byte received from the serial port, assembling the next packet
-        /// Once a full packet is assembled, returns true to alert caller that rxPacket contains a new packet
-        /// Otherwise returns false.
-        /// </summary>
-        /// <param name="inByte">The byte to add to the next packet.</param>
-        /// <param name="rxPacket">used to pass back the packet once assembled.</param>
-        /// <returns>true if a packet has finished being assembled.</returns>
-        //public string AddByte(byte inByte, SimplePacket rxPacket)
-        //{
-        //    if (this.syncStatus == SyncStates.UnSychronized)
-        //    {
-        //        // Haven't found a 0xFFFFFF packet start flag yet.
-        //        // so we are not yet synchronized
-        //        this.packetBuffer[1] = this.packetBuffer[0];
-        //        this.packetBuffer[0] = inByte;
-
-        //        if (this.packetBuffer[0] == 0xFF
-        //            && this.packetBuffer[1] == 0xFF)
-        //        {
-        //            // found the packet start flag, so now we know where we are
-        //            this.currByteNumInPacket = 2;
-        //            this.foundStartDoublet = true;
-        //            this.firstPacket = true;
-        //        }
-
-        //        return false;
-        //    }
-        //    else
-        //    {
-        //        // fill packetBuffer
-        //        if (this.firstPacket)
-        //        {
-        //            this.currByteNumInPacket = 2; // this skips over 0xFFFFFF flag at first 3 bytes in packet
-        //            this.firstPacket = false;
-        //        }
-
-        //        this.packetBuffer[this.currByteNumInPacket] = inByte;
-        //        if (this.currByteNumInPacket != (this.packet.Length - 1))
-        //        {
-        //            this.currByteNumInPacket++;
-        //            return false;
-        //        }
-        //        else
-        //        {
-        //            // we have a complete packet to pass back
-        //            this.DoubletsToPacket(this.packetBuffer, rxPacket);
-        //            this.currByteNumInPacket = 0;
-        //            return true;
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// Given an array of 24 bytes (8 value triplets),

@@ -164,7 +164,7 @@ namespace EDFSimSharp
 
             {
                 //start of packet flag
-                byte[] startFlag = { 255, 255 };
+                byte[] startFlag = { 0xAA, 0x55 };
                 serialPort.Write(startFlag, 0, 2);
 
                 //counter
@@ -181,9 +181,9 @@ namespace EDFSimSharp
                         + chanExtraInfos[chanNum].offset);
                     WriteUintAsTwoBytes((uint)samplePhysVal);
                 }
-                byte[] ZeroByte = new byte[1];
-                ZeroByte[0] = 0x00;
-                serialPort.Write(ZeroByte,0,1);
+                //byte[] ZeroByte = new byte[1];
+                //ZeroByte[0] = 0x00;
+                //serialPort.Write(ZeroByte,0,1);
                 writingSuccessfully = true;
             }
         }
