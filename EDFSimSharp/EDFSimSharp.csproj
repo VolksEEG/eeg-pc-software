@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\EDFSharp\EDFSharp\EDFSharp.csproj" />
+    <ProjectReference Include="..\EDFLib\EDFLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

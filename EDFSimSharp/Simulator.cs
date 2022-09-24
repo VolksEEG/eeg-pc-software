@@ -22,7 +22,7 @@ namespace EDFSimSharp
     using System.Windows.Forms;
     using System.IO.Ports;
     using System.Diagnostics;
-    using EDFSharp;
+    using EDFLib;
     using System.Threading;
 
     public partial class Simulator : Form
