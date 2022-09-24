@@ -68,7 +68,7 @@ namespace EDFLib
             }
         }
 
-        public int RecordDurationInSeconds { get; set; }
+        public float RecordDurationInSeconds { get; set; }
         public int NumberOfRecords { get; set; }
         public int SignalCount { get; set; }
 

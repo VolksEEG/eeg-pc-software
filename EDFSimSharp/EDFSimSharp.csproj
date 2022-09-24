@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EDFLib\EDFLib.csproj" />
+    <ProjectReference Include="..\EEGDataHandling\EEGDataHandling.csproj" />
   </ItemGroup>
 
   <ItemGroup>

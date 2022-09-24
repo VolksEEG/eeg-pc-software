@@ -117,7 +117,7 @@ namespace EDFLib
 
                 // Duration of a data record (seconds)
                 string recordDurationString = await ReadField(streamReader, BASIC_FIELD_LENGTH);
-                int recordDuration = int.Parse(recordDurationString);
+                float recordDuration = float.Parse(recordDurationString);
                 header.RecordDurationInSeconds = recordDuration;
 
                 // Number of signals in a data record (4 bytes - max 9999)
