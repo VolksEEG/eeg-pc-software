@@ -15,14 +15,9 @@
         byte[] Bytes { set; get; }
         bool synchronized { set; get; }
         enum SyncStates { UnSychronized, Synchronized}
-        private SyncStates syncStatus;
         private const int BytesPerSample = 2;
         private readonly SimplePacket packet = new SimplePacket();
-        //private readonly byte[] packetBuffer;
-        //private packetBuffer2;
         private bool foundStartDoublet;
-        private int currByteNumInPacket = 0;
-        private bool firstPacket;
         static Object LockObj = new Object();
 
         /// <summary>
@@ -41,7 +36,6 @@
         public void Reset()
         {
             this.foundStartDoublet = false;
-            //this.currByteNumInPacket = 0;
         }
 
         public bool AddByte(byte InByte, SimplePacket Packet)
@@ -59,7 +53,7 @@
 
                 Packet = DoubletsToPacket(Bytes, Packet);
 
-                //test for beginning = FFFF
+                //test for beginning = 0xAA55
                 if (Bytes[0] == 0xAA && Bytes[1] == 0x55)
                 {
                     synchronized = true;

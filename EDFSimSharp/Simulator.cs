@@ -24,6 +24,8 @@ namespace EDFSimSharp
     using System.Diagnostics;
     using EDFLib;
     using System.Threading;
+    using System.Linq.Expressions;
+    using System.Globalization;
 
     public partial class Simulator : Form
     {
@@ -38,14 +40,15 @@ namespace EDFSimSharp
         float secsPerSample;
         int outSampleCount;
         DateTime startTime;
-        long numSamples;
+        int numSamples;
         int numChans;
         Stopwatch stopwatch = new Stopwatch();
         private List<ChanExtraInfo> chanExtraInfos = new List<ChanExtraInfo>();
         enum States {Idle, Sending, TryingToSend };
         bool writingSuccessfully = true;
-        int prevPacketNum = 0;
-
+        long prevPacketNum = 0;
+        enum OutputStates { EntireFile, FixedNumPoints};
+        long PrevDisplayUpdate = 0;
 
         public Simulator()
         {
@@ -168,22 +171,19 @@ namespace EDFSimSharp
                 serialPort.Write(startFlag, 0, 2);
 
                 //counter
-                uint counter = (uint)(packetNum % Math.Pow(2, 16));
+                uint counter = (uint)(packetNum % Convert.ToInt64(Math.Pow(2, 16)));
                 WriteUintAsTwoBytes(counter);
 
                 for (int chanNum = 0; chanNum < numDisplayChans; chanNum++)
                 {
                     //read the sample
-                    short sampleVal = edfFile.Signals[chanNum].Values[packetNum];
+                    short sampleVal = edfFile.Signals[chanNum].Values[packetNum % numSamples];
 
                     //convert to physical units
                     short samplePhysVal = (short)((sampleVal * chanExtraInfos[chanNum].multiplier)
                         + chanExtraInfos[chanNum].offset);
                     WriteUintAsTwoBytes((uint)samplePhysVal);
                 }
-                //byte[] ZeroByte = new byte[1];
-                //ZeroByte[0] = 0x00;
-                //serialPort.Write(ZeroByte,0,1);
                 writingSuccessfully = true;
             }
         }
@@ -203,37 +203,50 @@ namespace EDFSimSharp
         {
             //output samples as needed
             int numSinceLastTick = (int)(GetShouldBeSampleNumber() - outSampleCount);
+            Debug.WriteLine(numSinceLastTick);
 
             for (int sampNum = 0; sampNum < numSinceLastTick; sampNum++)
             {
                 outSampleCount++;
-                Debug.Print(outSampleCount.ToString());
                 try
                 {
+                    if (!stopwatch.IsRunning)
+                    {
+                        stopwatch.Reset();
+                        stopwatch.Start();
+                    }
                     SendOutPacket(outSampleCount);
                 }
                 catch (TimeoutException ex)
                 {
                     tmrSampleOut.Enabled = false;
+                    stopwatch.Stop();
+                    stopwatch.Reset();
                     writingSuccessfully = false;
                     MessageBox.Show("Canot output samples - need to attach something to receive.");
                 }
-                catch (InvalidOperationException ex)
+                catch (Exception ex)
                 {
                     if (writingSuccessfully)
                     {
                         MessageBox.Show(ex.Message);
                     }
                 }
-                if ((outSampleCount == updNumSamplesToWrite.Value) || (writingSuccessfully == false))
+                if ((rdoOutputFixed.Checked) && (outSampleCount == updNumSamplesToWrite.Value)
+                    || ((rdoOutputComplete.Checked && !ckbLoop.Checked && ((outSampleCount == (numSamples - 1))))
+                    || (writingSuccessfully == false)))
                 {
-                    tmrSampleOut.Enabled = false;
-                    stopwatch.Stop();
-                    lblElapsed.Text = stopwatch.ElapsedMilliseconds.ToString();
-                    btnSimulate.Enabled = true;
+                    //tmrSampleOut.Enabled = false;
+                    //DisplayElapsed();
                     ChangeToStoppedState();
                     break;
                 }
+            }
+
+            //update elapsed time display, if needed
+            if (stopwatch.ElapsedMilliseconds > (PrevDisplayUpdate + 100))
+            {
+                DisplayElapsed();
             }
         }
 
@@ -261,6 +274,7 @@ namespace EDFSimSharp
                 cmbPort.Text = Properties.Settings.Default.SelectedPort;
             }
 
+            rdoOutputComplete.Checked = true;
             ChangeToNeedEDFFileState();
         }
 
@@ -278,8 +292,12 @@ namespace EDFSimSharp
         }
         private void ChangeToStoppedState()
         {
+            DisplayElapsed();
+            stopwatch.Stop();
+            stopwatch.Reset();
+            PrevDisplayUpdate = 0;
             tmrSampleOut.Enabled = false;
-            tmrWriteStatus.Enabled = false;
+            tmrWriteStatus.Enabled = false;         
             this.btnSimulate.Enabled = true;
             this.btnStop.Enabled = false;
             this.cmbPort.Enabled = true;
@@ -337,6 +355,51 @@ namespace EDFSimSharp
                 lblStatus.Text = "No One Receiving...";
                 lblStatus.BackColor = Color.Yellow;
             }
+        }
+
+        private void SetOputputBox(OutputStates OutputState)
+        {
+            if (OutputState == OutputStates.FixedNumPoints)
+            {
+                updNumSamplesToWrite.Enabled = true;
+                lblSamplesSet.Enabled = true;
+                ckbLoop.Enabled = false;
+            }
+            else
+            {
+                updNumSamplesToWrite.Enabled = false;
+                lblSamplesSet.Enabled = false;
+                ckbLoop.Enabled = true;
+            }
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rdoOutputComplete_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((RadioButton)sender).Checked)
+            {
+                SetOputputBox(OutputStates.EntireFile);
+            }
+        }
+
+        private void rdoOutputFixed_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((RadioButton)sender).Checked)
+            {
+                SetOputputBox(OutputStates.FixedNumPoints);
+            }
+        }
+
+        private void DisplayElapsed()
+        {
+            PrevDisplayUpdate = stopwatch.ElapsedMilliseconds;
+            float seconds = (float)(PrevDisplayUpdate / 1000.0);
+            lblElapsed.Text = seconds.ToString("F3", CultureInfo.InvariantCulture);
+            //lblPredicted.Text = (seconds / secsPerSample).ToString("F0", CultureInfo.InvariantCulture);
         }
     }
 }
