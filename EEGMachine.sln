@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EDFSimSharp", "EDFSimSharp\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimplePacketLib", "SimplePacketLib\SimplePacketLib.csproj", "{9069C36C-0856-46C7-9BE6-E6D54CF0032D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple Packet Receiver", "Simple Packet Receiver\Simple Packet Receiver.csproj", "{FD65E573-3F8A-418C-AD74-94040B7025B7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EEGMachineTests", "EEGMachineTests\EEGMachineTests.csproj", "{E096808C-35DD-4635-8A8C-3D5E694D7CEB}"
 EndProject
 Global
@@ -43,10 +41,6 @@ Global
 		{9069C36C-0856-46C7-9BE6-E6D54CF0032D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9069C36C-0856-46C7-9BE6-E6D54CF0032D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9069C36C-0856-46C7-9BE6-E6D54CF0032D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FD65E573-3F8A-418C-AD74-94040B7025B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FD65E573-3F8A-418C-AD74-94040B7025B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD65E573-3F8A-418C-AD74-94040B7025B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD65E573-3F8A-418C-AD74-94040B7025B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
