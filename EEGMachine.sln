@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimplePacketLib", "SimplePa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EEGMachineTests", "EEGMachineTests\EEGMachineTests.csproj", "{E096808C-35DD-4635-8A8C-3D5E694D7CEB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simple Packet Receiver", "Simple Packet Receiver\Simple Packet Receiver.csproj", "{F4F8C07D-3088-430C-A1E9-52D63AD2F327}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4F8C07D-3088-430C-A1E9-52D63AD2F327}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4F8C07D-3088-430C-A1E9-52D63AD2F327}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4F8C07D-3088-430C-A1E9-52D63AD2F327}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4F8C07D-3088-430C-A1E9-52D63AD2F327}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
