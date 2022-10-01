@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RootNamespace>Simple_Packet_Receiver</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <StartupObject>Simple_Packet_Receiver.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Simple Packet Receiver.old\**" />
+    <Compile Remove="Simple Packet Receiver\**" />
+    <EmbeddedResource Remove="Simple Packet Receiver.old\**" />
+    <EmbeddedResource Remove="Simple Packet Receiver\**" />
+    <None Remove="Simple Packet Receiver.old\**" />
+    <None Remove="Simple Packet Receiver\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CircularBuffer" Version="1.3.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.IO.Ports" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimplePacketLib\SimplePacketLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
