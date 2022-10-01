@@ -29,8 +29,8 @@ namespace EDFSimSharp
 
     public partial class Simulator : Form
     {
-        // TODO: Test with other sample files
-        // TODO: Test for EDF files wit < 8 samples
+        // TO DO: Test with other sample files
+        // TO DO: Test for EDF files with < 8 samples
 
         private int numDisplayChans = 8;
         private SerialPort serialPort = new SerialPort();
@@ -142,7 +142,6 @@ namespace EDFSimSharp
             double msec = ts.TotalMilliseconds;
             float secs = (float)((msec) / 1000.0);
             long shouldBeSampleNumber = (long)(secs / secsPerSample);
-            //Debug.Print(shouldBeSampleNumber.ToString());
             return shouldBeSampleNumber;
         }
 
@@ -191,10 +190,6 @@ namespace EDFSimSharp
         private void WriteUintAsTwoBytes(uint ToWrite)
         {
             byte[] sampleValBytes = BitConverter.GetBytes(ToWrite);
-            if (sampleValBytes[0] == 0xFF)
-            {
-                sampleValBytes[0] = 0xFE;
-            }
             serialPort.Write(sampleValBytes, 0, 1);
             serialPort.Write(sampleValBytes, 1, 1);
         }
@@ -216,6 +211,7 @@ namespace EDFSimSharp
                         stopwatch.Start();
                     }
                     SendOutPacket(outSampleCount);
+                    Debug.WriteLine(outSampleCount);
                 }
                 catch (TimeoutException ex)
                 {
@@ -236,8 +232,6 @@ namespace EDFSimSharp
                     || ((rdoOutputComplete.Checked && !ckbLoop.Checked && ((outSampleCount == (numSamples - 1))))
                     || (writingSuccessfully == false)))
                 {
-                    //tmrSampleOut.Enabled = false;
-                    //DisplayElapsed();
                     ChangeToStoppedState();
                     break;
                 }
@@ -399,7 +393,6 @@ namespace EDFSimSharp
             PrevDisplayUpdate = stopwatch.ElapsedMilliseconds;
             float seconds = (float)(PrevDisplayUpdate / 1000.0);
             lblElapsed.Text = seconds.ToString("F3", CultureInfo.InvariantCulture);
-            //lblPredicted.Text = (seconds / secsPerSample).ToString("F0", CultureInfo.InvariantCulture);
         }
     }
 }

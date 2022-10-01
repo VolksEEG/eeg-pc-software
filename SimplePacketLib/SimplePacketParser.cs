@@ -38,7 +38,7 @@
             this.foundStartDoublet = false;
         }
 
-        public bool AddByte(byte InByte, SimplePacket Packet)
+        public bool AddByte(byte InByte, SimplePacket PacketBuffer)
         {
             lock (LockObj)
             {
@@ -51,7 +51,7 @@
 
                 Bytes[Bytes.Length - 1] = InByte;
 
-                Packet = DoubletsToPacket(Bytes, Packet);
+                PacketBuffer = DoubletsToPacket(Bytes, PacketBuffer);
 
                 //test for beginning = 0xAA55
                 if (Bytes[0] == 0xAA && Bytes[1] == 0x55)
@@ -112,37 +112,37 @@
             }
         }
 
-        private class PacketFrameBuffer
-        {
-            byte[] Bytes { set; get; }
-            bool synchronized { set; get; }
+        //private class PacketFrameBuffer
+        //{
+        //    byte[] Bytes { set; get; }
+        //    bool synchronized { set; get; }
 
-            private PacketFrameBuffer(int Size)
-            {
+        //    private PacketFrameBuffer(int Size)
+        //    {
 
-            }
+        //    }
             
-            private bool AddByte(byte InByte)
-            {
-                //shift bytes one position higher
-                for (int i = 0; i < Bytes.Length - 1; i++)
-                {
-                    Bytes[i + 1] = Bytes[i];
-                }
+        //    private bool AddByte(byte InByte)
+        //    {
+        //        //shift bytes one position higher
+        //        for (int i = 0; i < Bytes.Length - 1; i++)
+        //        {
+        //            Bytes[i + 1] = Bytes[i];
+        //        }
                 
-                Bytes[0] = InByte;
+        //        Bytes[0] = InByte;
 
-                //test for beginning = FFFF
-                if (Bytes[0] == 0xFF && Bytes[1] == 0xFF)
-                {
-                    synchronized = true;
-                    return true;
-                }
-                else
-                { 
-                    return false;
-                }
-            }
-        }
+        //        //test for beginning = FFFF
+        //        if (Bytes[0] == 0xFF && Bytes[1] == 0xFF)
+        //        {
+        //            synchronized = true;
+        //            return true;
+        //        }
+        //        else
+        //        { 
+        //            return false;
+        //        }
+        //    }
+        //}
     }
 }
