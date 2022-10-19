@@ -1,12 +1,10 @@
 ﻿using EEGMachine.ViewModels;
 using Serilog;
-using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using System.Linq;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace EEGMachine.Views

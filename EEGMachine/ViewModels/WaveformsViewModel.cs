@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
+using DeviceCommunications.Interfaces;
+using DeviceCommunications;
+using System.IO.Ports;
 
 namespace EEGMachine.ViewModels
 {
@@ -14,31 +17,17 @@ namespace EEGMachine.ViewModels
         // For now, simply instantiates some Waveforms.
         public WaveformsViewModel()
         {
-            List<WaveformViewModel> waveforms = new List<WaveformViewModel>();
-            _generators = new List<EEGDataGenerator>();
-
-            for (int i = 0; i < 8; i++)
-            {
-                EEGDataGenerator generator = new EEGDataGenerator();
-
-                _generators.Add(generator);
-
-                WaveformViewModel vm = new WaveformViewModel(generator, this);
-                vm.PropertyChanged += WaveformPropertyChanged;
-                waveforms.Add(vm);
-            }
-
-            Waveforms = waveforms;
-
-            // For now, just using current time in UTC, but we may want to set this
-            // initially based on the oldest time we want to display from the source data.
-            StartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         private void WaveformPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(WaveformViewModel.LastUpdateTime))
             {
+                if (null == Waveforms)
+                {
+                    return;
+                }
+
                 // Check if we need to roll our time interval.
                 // Retrieve the last (most recent) sample from each waveform:
                 long currentTimestamp = CurrentTime;
@@ -65,9 +54,20 @@ namespace EEGMachine.ViewModels
             }
         }
 
-        public IEnumerable<WaveformViewModel> Waveforms { get; }
+        private IEnumerable<WaveformViewModel> _Waveforms;
+        public IEnumerable<WaveformViewModel> Waveforms {
+            get
+            {
+                return _Waveforms;
+            }
+            set
+            {
+                _Waveforms = value;
+                OnPropertyChanged(nameof(Waveforms));
+            }
+        }
 
-        private List<EEGDataGenerator> _generators;
+        //private List<EEGDataGenerator> _generators;
 
         // Range of values in milliseconds to display at a time.
         // (20 seconds)
@@ -99,6 +99,12 @@ namespace EEGMachine.ViewModels
             }
         }
 
+        public string SelectedPort { get; set; }
+
+        private DeviceComsProtocolParser _DeviceComsProtocolParser = null;
+        private IDeviceComs _DeviceComs;
+        private IEEGData _EEGData;
+
         // Commands
         private RelayCommand _startCaptureCommand;
         public ICommand StartCaptureCommand => _startCaptureCommand ??= new RelayCommand(StartCapture);
@@ -106,22 +112,59 @@ namespace EEGMachine.ViewModels
         private RelayCommand _stopCaptureCommand;
         public ICommand StopCaptureCommand => _stopCaptureCommand ??= new RelayCommand(StopCapture);
 
+        private RelayCommand _connect;
+
+        public ICommand ConnectCommand => _connect ??= new RelayCommand(Connect);
+
+        private void Connect()
+        {
+            if  (
+                    (this.SelectedPort == null)
+                    || (this.SelectedPort == string.Empty)
+                )
+            {
+                System.Windows.MessageBox.Show("No Port Selected");
+
+                return;
+            }
+
+            this._DeviceComsProtocolParser = new DeviceComsProtocolParser(new SerialComsStream(this.SelectedPort, 115200, Parity.None, 8, StopBits.One));
+            this._EEGData = this._DeviceComsProtocolParser;
+            this._DeviceComs = this._DeviceComsProtocolParser;
+
+            if (null == this.Waveforms)
+            {
+                List<WaveformViewModel> waveforms = new List<WaveformViewModel>();
+                WaveformViewModel vm = new WaveformViewModel(this._EEGData, this);
+                vm.PropertyChanged += WaveformPropertyChanged;
+                waveforms.Add(vm);
+                this.Waveforms = waveforms;
+            }
+        }
+
         private void StartCapture()
         {
+            // For now, just using current time in UTC, but we may want to set this
+            // initially based on the oldest time we want to display from the source data.
+            StartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            this._DeviceComs.SendStartDataCaptureRequest();
+
             // Call start on each waveform generator.
-            foreach (EEGDataGenerator generator in _generators)
+            /*foreach (EEGDataGenerator generator in _generators)
             {
                 generator.StartGenerating();
-            }
+            }*/
         }
 
         private void StopCapture()
         {
+            this._DeviceComs.SendStopDataCaptureRequest();
             // Call stop on each waveform generator.
-            foreach (EEGDataGenerator generator in _generators)
+            /*foreach (EEGDataGenerator generator in _generators)
             {
                 generator.StopGenerating();
-            }
+            }*/
         }
     }
 }
