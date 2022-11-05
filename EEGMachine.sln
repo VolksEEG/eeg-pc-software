@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeviceCommunications", "DeviceCommunications\DeviceCommunications.csproj", "{5ACE98C6-B185-4304-B307-BAD11C98335B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple Packet Receiver", "Simple Packet Receiver\Simple Packet Receiver.csproj", "{52882BAA-7D33-4993-A743-CE3850B1372B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimplePacketReceiver", "Simple Packet Receiver\SimplePacketReceiver.csproj", "{52882BAA-7D33-4993-A743-CE3850B1372B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
