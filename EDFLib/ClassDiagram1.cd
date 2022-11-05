@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="EDFLib.EDFFile">
+    <Position X="0.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EDFFile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EDFLib.EDFFormatException">
+    <Position X="8.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EDFFormatException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EDFLib.EDFReader">
+    <Position X="6.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABBAAAAAAAAAAAAAAAAAgIAAEAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>EDFReader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EDFLib.EDFWriter">
+    <Position X="8.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAgAAAAAAAAAAAIAAAAAAAAAAgAgUIABA=</HashCode>
+      <FileName>EDFWriter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EDFLib.Header">
+    <Position X="2.25" Y="0.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAjSKgASAAAACAAAAAAAAAAQAAACAAIABgIABABAg=</HashCode>
+      <FileName>Header.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EDFLib.Signal">
+    <Position X="4.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Signal.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EDFLib.SignalHeader">
+    <Position X="4.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEEAQAAAAAAAAAAAAEAAAAgAAAABAAIAAgEA=</HashCode>
+      <FileName>SignalHeader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,17 +1,18 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.2.32602.215
+VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EEGMachine", "EEGMachine\EEGMachine.csproj", "{9CDFD2F7-92D2-4B27-95DD-996ED93DC997}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EEGDataHandling", "EEGDataHandling\EEGDataHandling.csproj", "{2C0F1CFB-D06F-4637-8157-02C968207A8C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EEGMachineTests", "EEGMachineTests\EEGMachineTests.csproj", "{5732E887-DAF8-4062-AB35-A5E491C7BFD7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EDFLib", "EDFLib\EDFLib.csproj", "{C5CA1FEE-88AD-49EA-9E1F-6902BE100503}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialCommunication", "SerialCommunication\SerialCommunication.csproj", "{9DAC838B-9243-4FB6-ACF1-2C7273E56E8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EDFSimSharp", "EDFSimSharp\EDFSimSharp.csproj", "{481161E1-5DD4-4264-9255-9A9D0BE3C361}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimplePacketLib", "SimplePacketLib\SimplePacketLib.csproj", "{9069C36C-0856-46C7-9BE6-E6D54CF0032D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EEGMachineTests", "EEGMachineTests\EEGMachineTests.csproj", "{E096808C-35DD-4635-8A8C-3D5E694D7CEB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1096BB4F-EB6F-435F-AA4A-C04DE66618A9}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,7 +21,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceCommunications", "DeviceCommunications\DeviceCommunications.csproj", "{5ACE98C6-B185-4304-B307-BAD11C98335B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeviceCommunications", "DeviceCommunications\DeviceCommunications.csproj", "{5ACE98C6-B185-4304-B307-BAD11C98335B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimplePacketReceiver", "Simple Packet Receiver\SimplePacketReceiver.csproj", "{0E1741A1-8D00-425F-8FEE-3CA25034DA5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,22 +39,30 @@ Global
 		{2C0F1CFB-D06F-4637-8157-02C968207A8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C0F1CFB-D06F-4637-8157-02C968207A8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C0F1CFB-D06F-4637-8157-02C968207A8C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5732E887-DAF8-4062-AB35-A5E491C7BFD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5732E887-DAF8-4062-AB35-A5E491C7BFD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5732E887-DAF8-4062-AB35-A5E491C7BFD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5732E887-DAF8-4062-AB35-A5E491C7BFD7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C5CA1FEE-88AD-49EA-9E1F-6902BE100503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C5CA1FEE-88AD-49EA-9E1F-6902BE100503}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5CA1FEE-88AD-49EA-9E1F-6902BE100503}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5CA1FEE-88AD-49EA-9E1F-6902BE100503}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9DAC838B-9243-4FB6-ACF1-2C7273E56E8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9DAC838B-9243-4FB6-ACF1-2C7273E56E8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9DAC838B-9243-4FB6-ACF1-2C7273E56E8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9DAC838B-9243-4FB6-ACF1-2C7273E56E8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{481161E1-5DD4-4264-9255-9A9D0BE3C361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{481161E1-5DD4-4264-9255-9A9D0BE3C361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{481161E1-5DD4-4264-9255-9A9D0BE3C361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{481161E1-5DD4-4264-9255-9A9D0BE3C361}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9069C36C-0856-46C7-9BE6-E6D54CF0032D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9069C36C-0856-46C7-9BE6-E6D54CF0032D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9069C36C-0856-46C7-9BE6-E6D54CF0032D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9069C36C-0856-46C7-9BE6-E6D54CF0032D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E096808C-35DD-4635-8A8C-3D5E694D7CEB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5ACE98C6-B185-4304-B307-BAD11C98335B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5ACE98C6-B185-4304-B307-BAD11C98335B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5ACE98C6-B185-4304-B307-BAD11C98335B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5ACE98C6-B185-4304-B307-BAD11C98335B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E1741A1-8D00-425F-8FEE-3CA25034DA5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E1741A1-8D00-425F-8FEE-3CA25034DA5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E1741A1-8D00-425F-8FEE-3CA25034DA5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E1741A1-8D00-425F-8FEE-3CA25034DA5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
